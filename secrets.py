@@ -10,7 +10,6 @@ pwd='yoursecretpassword'
 closestud = ["Ahmed SOLOFAN","Abdel MOULA", "John CENA"]
 
 
-#remove '#' sign from desired team (only one line should start without #)
 
 
 
