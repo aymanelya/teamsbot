@@ -1,21 +1,35 @@
-import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from playsound import playsound
 from time import sleep
 from threading import Timer
 from secrets import *
+import re
+import os
+import sys
+import requests
+import platform 
 
+def clearscreen():
+    plt = platform.system()
+    if plt == "Windows":
+        os.system("cls")
+    else:
+        os.system("clear")   
 
 class bot():
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument("--incognito")
         chrome_options.add_argument("use-fake-ui-for-media-stream")
         self.driver = webdriver.Chrome(options=chrome_options)
+        self.driver.minimize_window()
     
     def checkteam(self,teamname):
-        searchteam = self.driver.find_element_by_xpath('//*[@id="left-rail-header-filter-input"]').send_keys(teamname)
+        #searchteam
+        self.driver.find_element_by_xpath('//*[@id="left-rail-header-filter-input"]').send_keys(teamname)
         teamxpath = "team-"+teamname+"-h3"
         sleep(2)
         clickteam = self.driver.find_element_by_xpath('//*[@data-tid="'+teamxpath+'"]')
@@ -24,9 +38,11 @@ class bot():
             try:
                 clickteam.click()
                 sleep(2)
-                generalchannel = self.driver.find_element_by_xpath('//*[@class="truncate highlighted-channel"]').click()
+                #generalchannel
+                self.driver.find_element_by_xpath('//*[@class="truncate highlighted-channel"]').click()
                 sleep(2)
-                ignorenotif = self.driver.find_element_by_xpath('//*[@id="toast-container"]/div/div/div[2]/div/button[2]').click()
+                #ignorenotif
+                self.driver.find_element_by_xpath('//*[@id="toast-container"]/div/div/div[2]/div/button[2]').click()
                 print("GENERAL CHANNEL SELECTED")
                 break
             except:
@@ -34,7 +50,8 @@ class bot():
 
 
     def checkmessages(self):
-        chatpannel = self.driver.find_element_by_xpath('//*[@id="page-content-wrapper"]/div[1]/div/calling-screen/div/div[2]/meeting-panel-components')
+        #chatpannel
+        self.driver.find_element_by_xpath('//*[@id="page-content-wrapper"]/div[1]/div/calling-screen/div/div[2]/meeting-panel-components')
         senders = []
         messages = []
         times = []
@@ -61,9 +78,10 @@ class bot():
         try:
             inputmsg = self.driver.find_element_by_xpath('//*[@data-tid="ckeditor-replyConversation"]')
             inputmsg.send_keys("Présent")
-            sendmsg = self.driver.find_element_by_xpath('//*[@id="send-message-button"]').click()
+            #sendmsg
+            self.driver.find_element_by_xpath('//*[@id="send-message-button"]').click()
         except:
-            print("/!\  ERROR : problem sending present message   /!\ ")
+            print("!  ERROR : problem sending present message   ! ")
         
     def checkparticipants(self):
         self.showparticipants()
@@ -103,14 +121,15 @@ class bot():
                 break
 
     def watchmessages(self,closestud):
-        sleep(2)
+        sleep(900)
         print("Waiting for others to type present at least 3 times...")
         presentmsgs = ["Present","Presente","Présent","Présente"]
         nbrpresent = 0
         maxnbrpresent = 0
         breaking = False
-
         while True:
+            if (self.watchparticipants()):
+                break
             messagelist = self.checkmessages()
             for message in messagelist:
                 if not message["Message"].islower():
@@ -121,7 +140,7 @@ class bot():
                     nbrpresent+=1
                     if nbrpresent > 3:
                         if message["Sender"] in closestud:
-                            print(message["Sender"]+ "just said Present, I'm marking you present too right now...")
+                            print(message["Sender"]+ " just said Present, I'm marking you present too right now...")
                             self.markpresent()
                             breaking= True
                             break
@@ -132,27 +151,22 @@ class bot():
             if breaking == True:
                 print("Marked Present Successfully, I will get off the call once there's less than 5 participants in the meeting...")
                 break
-    
-    def endcall(self):
-        endcallbtn = self.driver.find_element_by_xpath('//*[@data-tid="call-hangup"]').click()
-        print("I just got off the meeting, the call lasted more than 1h50min ")
-        self.driver.quit()
-        exit()
-        
+            
     
     def watchparticipants(self):
         self.showparticipants()
         sleep(2)
-        t = Timer(6600.0, self.endcall) 
-        t.start()
-        while True:
-            nbrparticipants = self.checkparticipants()
-            if nbrparticipants < 5:
-                endcallbtn = self.driver.find_element_by_xpath('//*[@data-tid="call-hangup"]').click()
-                sleep(10)
-                print("I just got off the meeting, number of participants left : "+str(nbrparticipants))
-                self.driver.quit() 
-                exit()
+        nbrparticipants = self.checkparticipants()
+        if nbrparticipants < 6:
+            #endcallbtn
+            self.driver.find_element_by_xpath('//*[@data-tid="call-hangup"]').click()
+            sleep(6)
+            self.driver.quit()
+            print("I just got off the meeting, number of participants left : "+str(nbrparticipants))
+            return True
+        return False
+                
+
     
     def loadteam(self):
         #wait for msteams and default team to load
@@ -178,7 +192,7 @@ class bot():
                 sleep(2)
                 break
             except:
-                sleep(5)
+                sleep(60)
                 print("Waiting for meeting to start...")
                 
                 
@@ -196,7 +210,8 @@ class bot():
                     print("I turned off your Camera")
 
                 sleep(2)
-                joinbtn2 = self.driver.find_element_by_xpath('//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
+                #joinbtn2
+                self.driver.find_element_by_xpath('//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
                 break
             except:
                 print('Team Still Loading...')
@@ -214,25 +229,103 @@ class bot():
 
         loginuser = self.driver.find_element_by_xpath('//*[@id="i0116"]')
         loginuser.send_keys(user)
-        loginbtn1 = self.driver.find_element_by_xpath('//*[@id="i0281"]/div/div/div[1]/div[2]/div[2]/div/div/div/div[4]/div/div/div/div').click()
+        sleep(2)
+        #loginbtn1
+        self.driver.find_element_by_xpath('//*[@id="i0281"]/div/div/div[1]/div[2]/div[2]/div/div/div/div[4]/div/div/div/div').click()
         sleep(2)
         
         loginpass = self.driver.find_element_by_xpath('//*[@id="i0118"]')
         loginpass.send_keys(pwd)
         sleep(2)
-        loginbtn = self.driver.find_element_by_xpath('//*[@id="i0281"]/div/div/div[1]/div[2]/div[2]/div/div[2]/div/div[3]/div[2]/div/div/div/div').click()
+        #loginbtn
+        self.driver.find_element_by_xpath('//*[@id="i0281"]/div/div/div[1]/div[2]/div[2]/div/div[2]/div/div[3]/div[2]/div/div/div/div').click()
         sleep(2)
         try:
-            staybtn = self.driver.find_element_by_xpath('/html/body/div/form/div[1]/div/div[1]/div[2]/div/div[2]/div/div[3]/div[2]/div/div/div[2]').click()
+            #staybtn
+            self.driver.find_element_by_xpath('/html/body/div/form/div[1]/div/div[1]/div[2]/div/div[2]/div/div[3]/div[2]/div/div/div[2]').click()
         except:
             sleep(2)
-        
-teamname=selectteam()        
-b = bot()
-b.login(user,pwd)
-b.loadteam()
-b.checkteam(teamname)
-b.waitformeeting()
-b.joinmeeting()
-b.watchmessages(closestud)
-b.watchparticipants()
+ 
+
+def errorAlert():
+    clearscreen()
+    print("ERROR, PLEASE CHECK YOUR INTERNET AND RESTART THE SCRIPT")
+    print("you can stop it using ctrl+c")
+    while True:
+        playsound("alarm.mp3")
+
+def checkdate():
+    URL = "http://worldtimeapi.org/api/timezone/Africa/Casablanca"
+    weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday", "Friday", "Saturday"]
+    r = requests.get(url = URL) 
+    data = r.json()
+    day = weekdays[data["day_of_week"]]
+    data = data["datetime"].split("T")
+    data[1] = data[1].split(":")
+    time = data[1][0]+":"+data[1][1]
+    return [day,time]
+
+def checktime():
+    now = checkdate()
+    today = now[0]
+    timenow = now[1].split(":")
+    nowminutes = int(timenow[0])*60 + int(timenow[1])
+    team = ""
+    todaytimes = []
+    for i in calendar[today]:
+        temp = i.split(":")
+        todaytimes.append(int(temp[0])*60 + int(temp[1]))
+    for i in range(len(todaytimes)):
+        if(nowminutes < todaytimes[0]):
+            print("Too early for your first class")
+            break
+        elif(nowminutes > todaytimes[len(todaytimes)-1]+120):
+            print("No more classes for today")
+            break
+        elif(nowminutes > todaytimes[len(todaytimes)-1]):
+            minutetokey = '{:02d}:{:02d}'.format(*divmod(todaytimes[len(todaytimes)-1], 60))
+            team = calendar[today][minutetokey]
+            print("You're a little late to your last class: "+team)
+            break
+        elif(nowminutes > todaytimes[i] and nowminutes < todaytimes[i+1]):
+            minutetokey = '{:02d}:{:02d}'.format(*divmod(todaytimes[i], 60))
+            team = calendar[today][minutetokey]
+            print("You're a little late to your class: "+team)
+            break
+        else:
+            minutetokey = '{:02d}:{:02d}'.format(*divmod(todaytimes[i], 60))
+            team = calendar[today][minutetokey]
+            print("Class right now: "+team)
+            break
+    sleep(3)
+    return team
+
+
+def autorun():
+    while True:
+        team = checktime()
+        if(team == ""):
+            print("Checking again in 10 minutes")
+            sleep(600)
+            clearscreen()
+        else:
+            main(team)
+
+
+def main(teamname):
+    try:
+        clearscreen()
+        print("Running the script for team '"+teamname+"'")
+        b = bot()
+        b.login(user,pwd)
+        b.loadteam()
+        b.checkteam(teamname)
+        b.waitformeeting()
+        b.joinmeeting()
+        b.watchmessages(closestud)
+        b.watchparticipants()
+    except:
+        errorAlert()
+
+
+autorun()
