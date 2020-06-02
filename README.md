@@ -1,6 +1,6 @@
 # Microsft Teams Bot
 
-I am not a "morning" person. So, when the 2020 quarantine happened, and classes went online, I made a bot that attended my online classes for me according to my timetable. So if you're not a morning person either, you now know what to do!
+Waking up early in the morning to attend some online classes can be hard sometimes. So I made a bot that attends my boring online classes for me according to my timetable, which allows me to focus more on the classes that i prefer and get more work done.
 
 Made by [Ayman Elyahmidi](https://github.com/aymanelya)
 
