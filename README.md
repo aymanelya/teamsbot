@@ -1,8 +1,14 @@
+> **⚠️ This project is no longer maintained.**
+>
+> Please note that this repository is not actively maintained or supported.
+
+
 # Microsft Teams Bot
 
 Waking up early in the morning to attend some online classes can be hard sometimes. So I made a bot that attends my boring online classes for me according to my timetable, which allows me to focus more on the classes that i prefer and get more work done.
 
 Made by [Ayman Elyahmidi](https://github.com/aymanelya)
+
 
 ## Install Steps
   
